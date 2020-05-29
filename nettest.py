@@ -1,11 +1,18 @@
 import subprocess
 import os
 
-def ping(host: str) -> str:
+file_dir = r'D:\test.txt'
+
+def make_file(file_dir):
+    with open(file_dir, 'wb') as out:
+        out.write(subprocess.check_output('TESTE Unifique'))
+
+def ping(file_dir) -> str:
     """Roda o comando ping com host/ip informado."""
-    p = subprocess.Popen(f'ping {host}')
-    p.wait()
-    return p.poll()
+    with open(file_dir, 'ab') as out:
+        out.write(subprocess.check_output('ping terra.com.br'))
+    #p.wait()
+    #return p.poll()
 
 def retorna_diretorio_atual() -> str:
     """Retorna o diretorio no qual o aplicativo foi executado."""
@@ -15,9 +22,16 @@ def retorna_diretorio_atual() -> str:
     except Exception as err:
         print('Erro ao ler diretorio. Diretorio nao existe ou voce nao tem permissao para gravar.', str(err))
 
-def 
 
 host = 'terra.com.br'
-saida = ping(host)
-print(saida)
-print(saida)
+print(host, file_dir)
+make_file(file_dir)
+ping(file_dir)
+print('=' * 10)
+
+
+"""
+import subprocess
+with open('output.txt','w') as out:
+    out.write(subprocess.check_output("ping www.google.com"))
+"""
