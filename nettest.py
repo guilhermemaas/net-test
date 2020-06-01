@@ -54,8 +54,8 @@ window = sg.Window('nettest - Network Tester', layout)
 
 while True:
     event, values = window.read()
-    out_dir = values[0].replace('/', '\\')
-    address = values[1]
+    out_dir = values[1].replace('/', '\\')
+    address = values[2]
     file_name = 'teste.txt'
     file_path = os.path.join(out_dir, file_name)
 
