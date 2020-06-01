@@ -1,37 +1,78 @@
+import PySimpleGUI as sg
 import subprocess
 import os
 
-file_dir = r'D:\test.txt'
 
-def make_file(file_dir):
-    with open(file_dir, 'wb') as out:
-        out.write(subprocess.check_output('TESTE Unifique'))
+def make_file(file_path) -> str:
+    with open(file_path, 'w') as out:
+        out.write('nettest - Network Tester')
 
-def ping(file_dir) -> str:
+
+def ping(address, file_path) -> str:
     """Roda o comando ping com host/ip informado."""
-    with open(file_dir, 'ab') as out:
-        out.write(subprocess.check_output('ping terra.com.br'))
-    #p.wait()
-    #return p.poll()
-
-def retorna_diretorio_atual() -> str:
-    """Retorna o diretorio no qual o aplicativo foi executado."""
-    try:
-        diretorio = os.getcwd()
-        return diretorio
-    except Exception as err:
-        print('Erro ao ler diretorio. Diretorio nao existe ou voce nao tem permissao para gravar.', str(err))
+    with open(file_path, 'ab') as out:
+        out.write(subprocess.check_output(f'ping {address}'))
 
 
-host = 'terra.com.br'
-print(host, file_dir)
-make_file(file_dir)
-ping(file_dir)
-print('=' * 10)
+def ipconfig(file_path) -> str:
+    """Roda o comando ipconfig /all."""
+    with open(file_path, 'ab') as out:
+        out.write(subprocess.check_output('ipconfig /all'))
 
 
-"""
-import subprocess
-with open('output.txt','w') as out:
-    out.write(subprocess.check_output("ping www.google.com"))
-"""
+def tracert(address, file_path) -> str:
+    """Roda o comando tracert -d -w 400 $endereco"""
+    with open(file_path, 'ab') as out:
+        out.write(subprocess.check_output(f'tracert -d -w 400 {address}'))
+
+
+def nslookup(address, file_path) ->str:
+    """Roda o comando nslookup"""
+    with open(file_path, 'ab') as out:
+        out.write(subprocess.check_output(f'nslookup {address}'))
+
+
+def nslookup2(address, file_path) -> str:
+    """Roda o comando nslookup $endereco 8.8.8.8"""
+    with open(file_path, 'ab') as out:
+        out.write(subprocess.check_output(f'nslookup {address} 8.8.8.8'))
+
+
+sg.theme('Reddit')
+
+layout = [
+    [sg.Text('nettest - Network Tester')],
+    [sg.Text('Pode ser utilizado endereço IP ou Web Site/Host.')],
+    [sg.Text('Diretório de saída:', size=(15, 1)), sg.InputText(), sg.FolderBrowse()],
+    [sg.Text('Endereço:', size=(15, 1)) ,sg.InputText()],
+    [sg.Multiline(size=(70, 15))],
+    #[sg.ScrolledTextBox(size=(70, 15))],
+    [sg.Button('Testar'), sg.Button('Cancelar')]
+]
+
+window = sg.Window('nettest - Network Tester', layout)
+
+while True:
+    event, values = window.read()
+    out_dir = values[0].replace('/', '\\')
+    address = values[1]
+    file_name = 'teste.txt'
+    file_path = os.path.join(out_dir, file_name)
+
+    if event == 'Testar':
+        print(file_path)
+        make_file(file_path)
+        ipconfig(file_path)
+        ping(address, file_path)
+        ping('localhost', file_path)
+        tracert(address, file_path)
+        nslookup(address, file_path)
+        nslookup2(address, file_path)
+
+        with open(file_path, 'r') as log:
+            sg.popup_scrolled(log.read())
+        
+    if event in (None, 'Cancelar'):
+        break
+
+window.close()
