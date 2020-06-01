@@ -42,11 +42,11 @@ sg.theme('Reddit')
 
 layout = [
     [sg.Text('nettest - Network Tester')],
+    [sg.Image(r'C:\Users\guilh\Documents\dev\net-test\images\simplegui.png')],
     [sg.Text('Pode ser utilizado endereço IP ou Web Site/Host.')],
     [sg.Text('Diretório de saída:', size=(15, 1)), sg.InputText(), sg.FolderBrowse()],
     [sg.Text('Endereço:', size=(15, 1)) ,sg.InputText()],
     [sg.Multiline(size=(70, 15))],
-    #[sg.ScrolledTextBox(size=(70, 15))],
     [sg.Button('Testar'), sg.Button('Cancelar')]
 ]
 
