@@ -38,6 +38,12 @@ def nslookup2(address, file_path) -> str:
         out.write(subprocess.check_output(f'nslookup {address} 8.8.8.8'))
 
 
+enderecos_dict = {
+    google: 'google.com',
+    terra: 'terra.com.br'
+    unifique: 'redeunifique.com.br'
+}
+
 sg.theme('Reddit')
 
 layout = [
@@ -55,7 +61,7 @@ window = sg.Window('nettest - Network Tester', layout)
 while True:
     event, values = window.read()
     out_dir = values[1].replace('/', '\\')
-    address = values[2]
+    adress = values[2]
     file_name = 'teste.txt'
     file_path = os.path.join(out_dir, file_name)
 
