@@ -251,3 +251,7 @@ main()
 #1 - Passar um work_id no args sempre, diferente para cada chamada em bg.
 #https://github.com/PySimpleGUI/PySimpleGUI/blob/master/DemoPrograms%20old/Demo_Threaded_Work.py
 #https://github.com/PySimpleGUI/PySimpleGUI/blob/master/DemoPrograms/Demo_Script_Launcher_Realtime_Output.py
+
+#http://speed.unifique.com.br/
+#https://github.com/librespeed/speedtest
+#Response HTTP dos endereços do dicionário.
