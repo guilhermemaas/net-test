@@ -78,7 +78,7 @@ def nslookup2(address, file_path) -> str:
 
 
 address_dict = {
-    'google': 'localhost'
+    'google': 'localhost',
 }
 
 sg.theme('Reddit')
@@ -106,9 +106,25 @@ def runCommandInBackground(cmd, gui_queue, timeout, file_path):
     #retval = p.wait(timeout)
     #return (retval, output)
 
+
 def rodarEmBackground(target, args):
     thread_id = threading.Thread(target=target, args=args, daemon=True)
     thread_id.start()
+
+
+class WorkInProgress():
+    def __init__(self) -> None:
+        self.status = False
+
+    def start_work(self):
+        self.status = True
+
+    def stop_work(self):
+        self.status = False
+
+    def return_status(self) -> bool:
+        return self.status
+
 
 def main():
     gui_queue = queue.Queue()
@@ -131,6 +147,10 @@ def main():
 
     #3 - Adicionar cada chamada em bg em uma lista de chamadas(Cada item [e um args])
     #dentro do While a cada for adicionar dentro da lista os args
+
+    command_queue = []
+    work_status = WorkInProgress()
+
     while True:        
         event, values = window.read(timeout=15)
 
@@ -156,32 +176,38 @@ def main():
             #runCommandInBackground(cmd='ipconfig /all', window=window, file_path=file_path)
             # thread_id = threading.Thread(target=runCommandInBackground, args=('ipconfig /all', gui_queue, None, file_path), daemon=True)
             # thread_id.start()
-            rodarEmBackground(target=runCommandInBackground, args=('ipconfig /all', gui_queue, None, file_path))
+            #rodarEmBackground(target=runCommandInBackground, args=('ipconfig /all', gui_queue, None, file_path))
+            ##event_list.append(('ipconfig /all', gui_queue, None, file_path))
+            command_queue.append({'workd_id': '0', 'work_done': False, 'args': ('ipconfig /all', gui_queue, None, file_path)})
 
-            #ping
-            #print_separator(file_path, '=')
-            #print_title(file_path=file_path, phrase='Executando Ping...')
-            #print_separator(file_path, '=')
-            for key, value in address_dict.items():
-                print_separator(file_path, '-')
-                rodarEmBackground(target=runCommandInBackground, args=(f'ping {value}', gui_queue, None, file_path))
+            # ping
+            # print_separator(file_path, '=')
+            # print_title(file_path=file_path, phrase='Executando Ping...')
+            # print_separator(file_path, '=')
+            # for key, value in address_dict.items():
+            #     print_separator(file_path, '-')
+            #     rodarEmBackground(target=runCommandInBackground, args=(f'ping {value}', gui_queue, None, file_path))
+            #     event_list.append((f'ping {value}', gui_queue, None, file_path))
+            #     command_queue.append({'workd_id': '1', 'work_done': False, 'args': (f'ping {value}', gui_queue, None, file_path)})
 
-            #tracert
-            #print_separator(file_path, '=')
-            #print_title(file_path=file_path, phrase='Executando Tracert...')
-            #print_separator(file_path, '=')
-            for key, value in address_dict.items():
-                #print_separator(file_path, '-')
-                # runCommandInBackground(cmd=f'tracert -d -w 400 {value}', file_path=file_path)
-                rodarEmBackground(target=runCommandInBackground, args=(f'tracert -d -w 400 {value}', gui_queue, None, file_path))
+            # tracert
+            # print_separator(file_path, '=')
+            # print_title(file_path=file_path, phrase='Executando Tracert...')
+            # print_separator(file_path, '=')
+            # for key, value in address_dict.items():
+            #     print_separator(file_path, '-')
+            #     runCommandInBackground(cmd=f'tracert -d -w 400 {value}', file_path=file_path)
+            #     rodarEmBackground(target=runCommandInBackground, args=(f'tracert -d -w 400 {value}', gui_queue, None, file_path))
+            #     event_list.append((f'tracert -d -w 400 {value}', gui_queue, None, file_path))
 
-            #nslookup
-            #print_separator(file_path, '=')
-            #print_title(file_path=file_path, phrase='Executando Nslookup...')
-            #print_separator(file_path, '=')
-            for key, value in address_dict.items():
-                #print_separator(file_path, '-')
-                rodarEmBackground(target=runCommandInBackground, args=(f'nslookup {value}', gui_queue, None, file_path))
+            # nslookup
+            # print_separator(file_path, '=')
+            # print_title(file_path=file_path, phrase='Executando Nslookup...')
+            # print_separator(file_path, '=')
+            # for key, value in address_dict.items():
+            #     print_separator(file_path, '-')
+            #     rodarEmBackground(target=runCommandInBackground, args=(f'nslookup {value}', gui_queue, None, file_path))
+            #     event_list.append((f'nslookup {value}', gui_queue, None, file_path))
 
             # #with open(file_path, 'r') as log:
             # #    sg.popup_scrolled(log.read())
@@ -190,7 +216,12 @@ def main():
             # print_title(file_path=file_path, phrase='Teste Finalizado.')
             # print_separator(file_path, '=')
 
-            #5 - Rodar o primeiro da lista antes da etapa #4
+            # 5 - Rodar o primeiro da lista antes da etapa #4
+
+            for command in command_queue:
+                if command['work_done'] == False and work_status.status() = True:
+                    rodarEmBackground(target=runCommandInBackground, args=command['args'])
+                    command['work_done'] == True
             
         try:
             message = gui_queue.get_nowait()    # see if something has been posted to Queue
