@@ -7,6 +7,8 @@ import sys
 import threading
 import queue
 from enum import Enum
+import concurrent
+import concurrent.futures
 
 
 def make_file(file_path) -> str:
@@ -105,11 +107,13 @@ def runCommandInBackground(cmd, gui_queue, timeout, file_path):
 
     #retval = p.wait(timeout)
     #return (retval, output)
+    #return True
 
 
 def rodarEmBackground(target, args):
     thread_id = threading.Thread(target=target, args=args, daemon=True)
     thread_id.start()
+    #thread_id.join()
 
 
 class WorkInProgress():
@@ -132,7 +136,8 @@ def main():
     layout = [
         [sg.Image(r'C:\Users\guilh\Documents\dev\net-test\images\nettest.png')],
         #[sg.Image(r'C:\Users\guilherme.maas\Documents\dev\net-test\images\unifique.png')],
-        [sg.Text('Unifique - Testador de conexões de Rede.')],
+        #[sg.Text('Unifique - Testador de conexões de Rede.')],
+        [sg.Text('NetTest - Testador de conexões de Rede.')],
         [sg.Text('Diretório de saída:', size=(15, 1)), sg.InputText(), sg.FolderBrowse()],
         [sg.Text('Endereço alternativo:', size=(15, 1)) ,sg.InputText()],
         [sg.Text('Exemplos de endereço: terra.com.br, uol.com.br, globo.com')],
@@ -179,7 +184,7 @@ def main():
             # thread_id.start()
             #rodarEmBackground(target=runCommandInBackground, args=('ipconfig /all', gui_queue, None, file_path))
             ##event_list.append(('ipconfig /all', gui_queue, None, file_path))
-            command_queue.append({'work_done': False, 'args': ('ipconfig /all', gui_queue, None, file_path)})
+            command_queue.append({'args': ('ipconfig /all', gui_queue, None, file_path)})
 
             # ping
             # print_separator(file_path, '=')
@@ -188,7 +193,7 @@ def main():
             for key, value in address_dict.items():
                 print_separator(file_path, '-')
                 #rodarEmBackground(target=runCommandInBackground, args=(f'ping {value}', gui_queue, None, file_path))
-                command_queue.append({'work_done': False, 'args': (f'ping {value}', gui_queue, None, file_path)})
+                command_queue.append({'args': (f'ping {value}', gui_queue, None, file_path)})
 
             # tracert
             # print_separator(file_path, '=')
@@ -199,7 +204,7 @@ def main():
                 #runCommandInBackground(cmd=f'tracert -d -w 400 {value}', file_path=file_path)
                 #rodarEmBackground(target=runCommandInBackground, args=(f'tracert -d -w 400 {value}', gui_queue, None, file_path))
                 #command_queue.append((f'tracert -d -w 400 {value}', gui_queue, None, file_path))
-                command_queue.append({'work_done': False, 'args': (f'tracert -d -w 400 {value}', gui_queue, None, file_path)})
+                command_queue.append({'args': (f'tracert -d -w 400 {value}', gui_queue, None, file_path)})
 
             # nslookup
             # print_separator(file_path, '=')
@@ -209,7 +214,7 @@ def main():
                 print_separator(file_path, '-')
                 #rodarEmBackground(target=runCommandInBackground, args=(f'nslookup {value}', gui_queue, None, file_path))
                 #event_list.append((f'nslookup {value}', gui_queue, None, file_path))
-                command_queue.append({'work_done': False, 'args': (f'nslookup {value}', gui_queue, None, file_path)})
+                command_queue.append({'args': (f'nslookup {value}', gui_queue, None, file_path)})
 
             # #with open(file_path, 'r') as log:
             # #    sg.popup_scrolled(log.read())
@@ -220,18 +225,37 @@ def main():
 
             # 5 - Rodar o primeiro da lista antes da etapa #4
 
-            for command in command_queue:
-                print(command)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+                    executor.submit(runCommandInBackground, ('nslookup localhost', gui_queue, None, file_path))
 
-            print(f'//////////////{work_status.start_work}')
+            """
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+                for command in command_queue:
+                    print(command['args'])
+                    executor.submit(runCommandInBackground, args=command['args'])
+            """
 
+            """
             for command in command_queue:
-                if command['work_done'] == False and work_status.status == False:
-                    work_status.start_work
-                    print(f'//////////////{work_status.start_work}')
+                if command['work_done'] == False:
+                    #work_status.start_work
                     rodarEmBackground(target=runCommandInBackground, args=command['args'])
                     command['work_done'] == True
-            
+            """
+            """
+            threads = list()
+            for command in command_queue:
+                #logging.info("Main    : create and start thread %d.", index)
+                x = threading.Thread(target=runCommandInBackground, args=(command['args'], gui_queue, None, file_path))
+                threads.append(x)
+                x.start()
+
+            for index, thread in enumerate(threads):
+                #logging.info("Main    : before joining thread %d.", index)
+                thread.join()
+                #logging.info("Main    : thread %d done", index)
+            """
+
         try:
             message = gui_queue.get_nowait()    # see if something has been posted to Queue
         except queue.Empty:                     # get_nowait() will get exception when Queue is empty
