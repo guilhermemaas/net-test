@@ -7,8 +7,6 @@ import sys
 import threading
 import queue
 from enum import Enum
-import concurrent
-import concurrent.futures
 
 
 def make_file(file_path) -> str:
@@ -80,11 +78,11 @@ def nslookup2(address, file_path) -> str:
 
 
 address_dict = {
-    'google': 'localhost',
+    'google': 'localhost'
 }
 
-#sg.theme('Reddit')
-sg.theme('DarkAmber')
+sg.theme('Reddit')
+#sg.theme('DarkAmber')
 
 def runCommandInBackground(cmd, gui_queue, timeout, file_path):
     #nop = None
@@ -107,45 +105,45 @@ def runCommandInBackground(cmd, gui_queue, timeout, file_path):
 
     #retval = p.wait(timeout)
     #return (retval, output)
-    #return True
-
 
 def rodarEmBackground(target, args):
     thread_id = threading.Thread(target=target, args=args, daemon=True)
     thread_id.start()
-    #thread_id.join()
 
+class ThreadQueue():
+    def __init__(self):
+        self.todo_threads = []
+        self.count_thread = 0
 
-class WorkInProgress():
-    def __init__(self, status) -> None:
-        self.status = False
+    def thread_append(self, target, args, daemon=True):
+        self.todo_threads.append({'thread_queue_position': self.count_thread, 'target': target, 'args': args, 'daemon': True, 'done': False})
+        self.count_thread += 1
 
-    def start_work(self) -> None: 
-        self.status = True
+    def thread_print(self):
+        for thread in self.todo_threads:
+            print(thread)
 
-    def stop_work(self) -> None:
-        self.status = False
-
-    def return_status(self) -> bool:
-        return self.status
-
-
+    def thread_to_do(self):
+        for thread in self.todo_threads:
+            if thread['done'] == False:
+                return thread
+            else:
+                return False
+    
 def main():
     gui_queue = queue.Queue()
 
     layout = [
         #[sg.Image(r'C:\Users\guilh\Documents\dev\net-test\images\nettest.png')],
-        [sg.Image(r'C:\Users\guilherme.maas\Documents\dev\net-test\images\nettest.png')],
-        #[sg.Image(r'C:\Users\guilherme.maas\Documents\dev\net-test\images\unifique.png')],
-        #[sg.Text('Unifique - Testador de conexões de Rede.')],
-        [sg.Text('NetTest - Testador de conexões de Rede.')],
+        [sg.Image(r'C:\Users\guilherme.maas\Documents\dev\net-test\images\unifique.png')],
+        [sg.Text('Unifique - Testador de conexões de Rede.')],
         [sg.Text('Diretório de saída:', size=(15, 1)), sg.InputText(), sg.FolderBrowse()],
         [sg.Text('Endereço alternativo:', size=(15, 1)) ,sg.InputText()],
         [sg.Text('Exemplos de endereço: terra.com.br, uol.com.br, globo.com')],
         [sg.Output(size=(110,30), background_color='black', text_color='white')],
         [sg.Button('Testar'), sg.Button('Sair')],
-        [sg.Text('github.com/guilhermemaas')],
-        #[sg.Text('unifique.com.br')]
+        #[sg.Text('github.com/guilhermemaas')],
+        [sg.Text('unifique.com.br')]
     ]
 
     #window = sg.Window('nettest - Network Tester', layout)
@@ -154,9 +152,7 @@ def main():
     #3 - Adicionar cada chamada em bg em uma lista de chamadas(Cada item [e um args])
     #dentro do While a cada for adicionar dentro da lista os args
 
-    command_queue = []
-    work_status = WorkInProgress(False)
-    work_status.stop_work()
+    tq = ThreadQueue() 
 
     while True:        
         event, values = window.read(timeout=15)
@@ -184,39 +180,33 @@ def main():
             # thread_id = threading.Thread(target=runCommandInBackground, args=('ipconfig /all', gui_queue, None, file_path), daemon=True)
             # thread_id.start()
             #rodarEmBackground(target=runCommandInBackground, args=('ipconfig /all', gui_queue, None, file_path))
-            ##event_list.append(('ipconfig /all', gui_queue, None, file_path))
-            command_queue.append({'command': 'ipconfig /all', 'gui_queue': gui_queue, 'time_out': None, 'file_path': file_path})
+            tq.thread_append(target=runCommandInBackground, args=('ipconfig /all', gui_queue, None, file_path))
+            tq.thread_print()
 
-            # ping
-            # print_separator(file_path, '=')
-            # print_title(file_path=file_path, phrase='Executando Ping...')
-            # print_separator(file_path, '=')
-            for key, value in address_dict.items():
-                print_separator(file_path, '-')
-                #rodarEmBackground(target=runCommandInBackground, args=(f'ping {value}', gui_queue, None, file_path))
-                #command_queue.append({'args': (f'ping {value}', gui_queue, None, file_path)})
-                command_queue.append({'command': f'ping {value}', 'gui_queue': gui_queue, 'time_out': None, 'file_path': file_path})
-
-            # tracert
-            # print_separator(file_path, '=')
-            # print_title(file_path=file_path, phrase='Executando Tracert...')
-            # print_separator(file_path, '=')
+            #ping
+            #print_separator(file_path, '=')
+            #print_title(file_path=file_path, phrase='Executando Ping...')
+            #print_separator(file_path, '=')
             # for key, value in address_dict.items():
             #     print_separator(file_path, '-')
-            #     #runCommandInBackground(cmd=f'tracert -d -w 400 {value}', file_path=file_path)
-            #     #rodarEmBackground(target=runCommandInBackground, args=(f'tracert -d -w 400 {value}', gui_queue, None, file_path))
-            #     #command_queue.append((f'tracert -d -w 400 {value}', gui_queue, None, file_path))
-            #     command_queue.append({'args': (f'tracert -d -w 400 {value}', gui_queue, None, file_path)})
+            #     rodarEmBackground(target=runCommandInBackground, args=(f'ping {value}', gui_queue, None, file_path))
 
-            # nslookup
-            # print_separator(file_path, '=')
-            # print_title(file_path=file_path, phrase='Executando Nslookup...')
-            # print_separator(file_path, '=')
+            #tracert
+            #print_separator(file_path, '=')
+            #print_title(file_path=file_path, phrase='Executando Tracert...')
+            #print_separator(file_path, '=')
             # for key, value in address_dict.items():
-            #     print_separator(file_path, '-')
-            #     #rodarEmBackground(target=runCommandInBackground, args=(f'nslookup {value}', gui_queue, None, file_path))
-            #     #event_list.append((f'nslookup {value}', gui_queue, None, file_path))
-            #     command_queue.append({'args': (f'nslookup {value}', gui_queue, None, file_path)})
+            #     #print_separator(file_path, '-')
+            #     # runCommandInBackground(cmd=f'tracert -d -w 400 {value}', file_path=file_path)
+            #     rodarEmBackground(target=runCommandInBackground, args=(f'tracert -d -w 400 {value}', gui_queue, None, file_path))
+
+            #nslookup
+            #print_separator(file_path, '=')
+            #print_title(file_path=file_path, phrase='Executando Nslookup...')
+            #print_separator(file_path, '=')
+            # for key, value in address_dict.items():
+            #     #print_separator(file_path, '-')
+            #     rodarEmBackground(target=runCommandInBackground, args=(f'nslookup {value}', gui_queue, None, file_path))
 
             # #with open(file_path, 'r') as log:
             # #    sg.popup_scrolled(log.read())
@@ -225,43 +215,15 @@ def main():
             # print_title(file_path=file_path, phrase='Teste Finalizado.')
             # print_separator(file_path, '=')
 
-            # 5 - Rodar o primeiro da lista antes da etapa #4
+            #5 - Rodar o primeiro da lista antes da etapa #4
 
-            with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-                    #executor.submit(runCommandInBackground, ('nslookup localhost', gui_queue, None, file_path))
-                    #print(command_queue[0])
-                    #print(command_queue[0]['command'])
-                    for command in command_queue:
-                        executor.submit(runCommandInBackground, command['command'], command['gui_queue'], command['time_out'], command['file_path'])
-
-            """
-            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-                for command in command_queue:
-                    print(command['args'])
-                    executor.submit(runCommandInBackground, args=command['args'])
-            """
-
-            """
-            for command in command_queue:
-                if command['work_done'] == False:
-                    #work_status.start_work
-                    rodarEmBackground(target=runCommandInBackground, args=command['args'])
-                    command['work_done'] == True
-            """
-            """
-            threads = list()
-            for command in command_queue:
-                #logging.info("Main    : create and start thread %d.", index)
-                x = threading.Thread(target=runCommandInBackground, args=(command['args'], gui_queue, None, file_path))
-                threads.append(x)
-                x.start()
-
-            for index, thread in enumerate(threads):
-                #logging.info("Main    : before joining thread %d.", index)
-                thread.join()
-                #logging.info("Main    : thread %d done", index)
-            """
-
+            current_thread = tq.thread_to_do
+            print(f'TODO: {current_thread}')
+            if current_thread == False:
+                print('Nada para executar')
+            else:
+                print(current_thread)
+            
         try:
             message = gui_queue.get_nowait()    # see if something has been posted to Queue
         except queue.Empty:                     # get_nowait() will get exception when Queue is empty
@@ -290,7 +252,3 @@ main()
 #1 - Passar um work_id no args sempre, diferente para cada chamada em bg.
 #https://github.com/PySimpleGUI/PySimpleGUI/blob/master/DemoPrograms%20old/Demo_Threaded_Work.py
 #https://github.com/PySimpleGUI/PySimpleGUI/blob/master/DemoPrograms/Demo_Script_Launcher_Realtime_Output.py
-
-#http://speed.unifique.com.br/
-#https://github.com/librespeed/speedtest
-#Response HTTP dos endereços do dicionário.

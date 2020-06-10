@@ -86,28 +86,34 @@ address_dict = {
 #sg.theme('Reddit')
 sg.theme('DarkAmber')
 
-def runCommandInBackground(cmd, gui_queue, timeout, file_path):
-    #nop = None
-  
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    output = ''
-    print_separator(file_path, '-')
-    for line in p.stdout:
-        line = line.decode(errors='replace' if (sys.version_info) < (3, 5) else 'backslashreplace').rstrip()
-        output += line
-        gui_queue.put(line)
-        #2 - retorna uma tupla com work_id e o texto e booleano dizendo se terminou.
-        #print(line)
-        with open(file_path, 'a') as out:
-            out.write(line + '\n')
-        #window.refresh() if window else nop
-    
-    # gui_queue.put(output)
-    p.wait(timeout)
 
-    #retval = p.wait(timeout)
-    #return (retval, output)
-    #return True
+class ExecuteCommands:
+    def __init__(self):
+        #self.value = 0
+        self._lock = threading.Lock()
+
+    def runCommandInBackground(self, cmd, gui_queue, timeout, file_path):
+        #nop = None
+    
+        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output = ''
+        print_separator(file_path, '-')
+        for line in p.stdout:
+            line = line.decode(errors='replace' if (sys.version_info) < (3, 5) else 'backslashreplace').rstrip()
+            output += line
+            gui_queue.put(line)
+            #2 - retorna uma tupla com work_id e o texto e booleano dizendo se terminou.
+            #print(line)
+            with open(file_path, 'a') as out:
+                out.write(line + '\n')
+            #window.refresh() if window else nop
+        
+        # gui_queue.put(output)
+        p.wait(timeout)
+
+        #retval = p.wait(timeout)
+        #return (retval, output)
+        #return True
 
 
 def rodarEmBackground(target, args):
@@ -115,7 +121,7 @@ def rodarEmBackground(target, args):
     thread_id.start()
     #thread_id.join()
 
-
+"""
 class WorkInProgress():
     def __init__(self, status) -> None:
         self.status = False
@@ -128,7 +134,7 @@ class WorkInProgress():
 
     def return_status(self) -> bool:
         return self.status
-
+"""
 
 def main():
     gui_queue = queue.Queue()
@@ -155,8 +161,9 @@ def main():
     #dentro do While a cada for adicionar dentro da lista os args
 
     command_queue = []
-    work_status = WorkInProgress(False)
-    work_status.stop_work()
+    #work_status = WorkInProgress(False)
+    #work_status.stop_work()
+    ec = ExecuteCommands()
 
     while True:        
         event, values = window.read(timeout=15)
@@ -232,7 +239,7 @@ def main():
                     #print(command_queue[0])
                     #print(command_queue[0]['command'])
                     for command in command_queue:
-                        executor.submit(runCommandInBackground, command['command'], command['gui_queue'], command['time_out'], command['file_path'])
+                        executor.submit(ec.runCommandInBackground, command['command'], command['gui_queue'], command['time_out'], command['file_path'])
 
             """
             with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
