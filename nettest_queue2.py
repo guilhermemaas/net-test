@@ -78,59 +78,73 @@ def nslookup2(address, file_path) -> str:
 
 
 address_dict = {
-    'google': 'localhost'
+    'localhost': 'localhost'
 }
 
-sg.theme('Reddit')
-#sg.theme('DarkAmber')
+#sg.theme('Reddit')
+sg.theme('DarkAmber')
 
-def runCommandInBackground(cmd, gui_queue, timeout, file_path):
-    #nop = None
-  
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    output = ''
-    print_separator(file_path, '-')
-    for line in p.stdout:
-        line = line.decode(errors='replace' if (sys.version_info) < (3, 5) else 'backslashreplace').rstrip()
-        output += line
-        gui_queue.put(line)
-        #2 - retorna uma tupla com work_id e o texto e booleano dizendo se terminou.
-        #print(line)
-        with open(file_path, 'a') as out:
-            out.write(line + '\n')
-        #window.refresh() if window else nop
-    
-    # gui_queue.put(output)
-    p.wait(timeout)
 
-    #retval = p.wait(timeout)
-    #return (retval, output)
+class ThreadQueue():
+    def __init__(self):
+        self.thread_queue = queue.Queue()
 
-def rodarEmBackground(target, args):
-    thread_id = threading.Thread(target=target, args=args, daemon=True)
-    thread_id.start()
+    def put(self, args):
+        self.thread_queue.put(args)
+
+    def run_in_sequence(self):
+        worker = threading.Thread(target=self.__control_loop)
+        worker.setDaemon(True)
+        worker.start()
+
+    def __control_loop(self):
+        worker = threading.Thread(target=self.run_command_in_background)
+        worker.setDaemon(True)
+        worker.start()
+        
+        self.thread_queue.join() #aguarda o processamento da fila
+
+    def run_command_in_background(self):
+        while True:
+            cmd, gui_queue, timeout, file_path = self.thread_queue.get()
+
+            p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            output = ''
+            print_separator(file_path, '-')
+            for line in p.stdout:
+                line = line.decode(errors='replace' if (sys.version_info) < (3, 5) else 'backslashreplace').rstrip()
+                output += line
+                gui_queue.put(line)
+                with open(file_path, 'a') as out:
+                    out.write(line + '\n')
+            
+            p.wait(timeout)
+            self.thread_queue.task_done()
+
 
 def main():
+
     gui_queue = queue.Queue()
 
     layout = [
         [sg.Image(r'C:\Users\guilh\Documents\dev\net-test\images\nettest.png')],
         #[sg.Image(r'C:\Users\guilherme.maas\Documents\dev\net-test\images\unifique.png')],
-        [sg.Text('Unifique - Testador de conexões de Rede.')],
+        #[sg.Text('Unifique - Testador de conexões de Rede.')],
+        [sg.Text('NetTest - Testador de conexões de Rede.')],
         [sg.Text('Diretório de saída:', size=(15, 1)), sg.InputText(), sg.FolderBrowse()],
         [sg.Text('Endereço alternativo:', size=(15, 1)) ,sg.InputText()],
         [sg.Text('Exemplos de endereço: terra.com.br, uol.com.br, globo.com')],
         [sg.Output(size=(110,30), background_color='black', text_color='white')],
         [sg.Button('Testar'), sg.Button('Sair')],
-        #[sg.Text('github.com/guilhermemaas')],
-        [sg.Text('unifique.com.br')]
+        [sg.Text('github.com/guilhermemaas')],
+        #[sg.Text('unifique.com.br')]
     ]
 
-    #window = sg.Window('nettest - Network Tester', layout)
-    window = sg.Window('Unifique - Testador de conexões de Rede', layout)
+    window = sg.Window('nettest - Network Tester', layout)
+    #window = sg.Window('Unifique - Testador de conexões de Rede', layout)
 
-    #3 - Adicionar cada chamada em bg em uma lista de chamadas(Cada item [e um args])
-    #dentro do While a cada for adicionar dentro da lista os args
+    command_queue = ThreadQueue() 
+
     while True:        
         event, values = window.read(timeout=15)
 
@@ -142,8 +156,6 @@ def main():
         file_name = 'nettest.txt'
         file_path = os.path.join(out_dir, file_name)
 
-        #work_id = 0
-
         if event == 'Testar':
             
             make_file(file_path)
@@ -153,44 +165,21 @@ def main():
             print_separator(file_path, '=')
             print_separator(file_path, '=')
 
-            #runCommandInBackground(cmd='ipconfig /all', window=window, file_path=file_path)
-            # thread_id = threading.Thread(target=runCommandInBackground, args=('ipconfig /all', gui_queue, None, file_path), daemon=True)
-            # thread_id.start()
-            rodarEmBackground(target=runCommandInBackground, args=('ipconfig /all', gui_queue, None, file_path))
-
-            #ping
-            #print_separator(file_path, '=')
-            #print_title(file_path=file_path, phrase='Executando Ping...')
-            #print_separator(file_path, '=')
+            command_queue.put(('ipconfig /all', gui_queue, None, file_path))
+        
             for key, value in address_dict.items():
                 print_separator(file_path, '-')
-                rodarEmBackground(target=runCommandInBackground, args=(f'ping {value}', gui_queue, None, file_path))
+                command_queue.put((f'ping {value}', gui_queue, None, file_path))
 
-            #tracert
-            #print_separator(file_path, '=')
-            #print_title(file_path=file_path, phrase='Executando Tracert...')
-            #print_separator(file_path, '=')
             for key, value in address_dict.items():
-                #print_separator(file_path, '-')
-                # runCommandInBackground(cmd=f'tracert -d -w 400 {value}', file_path=file_path)
-                rodarEmBackground(target=runCommandInBackground, args=(f'tracert -d -w 400 {value}', gui_queue, None, file_path))
+                print_separator(file_path, '-')
+                command_queue.put((f'tracert -d -w 400 {value}', gui_queue, None, file_path))
 
-            #nslookup
-            #print_separator(file_path, '=')
-            #print_title(file_path=file_path, phrase='Executando Nslookup...')
-            #print_separator(file_path, '=')
             for key, value in address_dict.items():
-                #print_separator(file_path, '-')
-                rodarEmBackground(target=runCommandInBackground, args=(f'nslookup {value}', gui_queue, None, file_path))
+                print_separator(file_path, '-')
+                command_queue.put((f'nslookup {value}', gui_queue, None, file_path))
 
-            # #with open(file_path, 'r') as log:
-            # #    sg.popup_scrolled(log.read())
-
-            # print_separator(file_path, '=')
-            # print_title(file_path=file_path, phrase='Teste Finalizado.')
-            # print_separator(file_path, '=')
-
-            #5 - Rodar o primeiro da lista antes da etapa #4
+            command_queue.run_in_sequence()
             
         try:
             message = gui_queue.get_nowait()    # see if something has been posted to Queue
@@ -199,7 +188,6 @@ def main():
 
         # if message received from queue, then some work was completed
         if message is not None:
-            #4 - cada vez que vier uma mensagem com booleano true que acabou comecar a proxima, rodar em bg e remover da lista
             print(message)
             # LOCATION 3
             # this is the place you would execute code at ENDING of long running task
@@ -216,7 +204,3 @@ def main():
     window.close()
 
 main()
-
-#1 - Passar um work_id no args sempre, diferente para cada chamada em bg.
-#https://github.com/PySimpleGUI/PySimpleGUI/blob/master/DemoPrograms%20old/Demo_Threaded_Work.py
-#https://github.com/PySimpleGUI/PySimpleGUI/blob/master/DemoPrograms/Demo_Script_Launcher_Realtime_Output.py
