@@ -5,8 +5,11 @@ nettest - Network Tester
      / / |   /  __/ /_     / / /  __(__  ) /_  
     /_/  |_ /\___/\__/    /_/  \___/____/\__/                                           
     
-============================================================
-============================================================
+
+------------------------------------------------------------------------------------------------------------------------
+Coletanto informações com o comando ipconfig /all.
+------------------------------------------------------------------------------------------------------------------------
+
 
 Windows IP Configuration
 
@@ -27,7 +30,7 @@ Ethernet adapter Ethernet:
    IPv4 Address. . . . . . . . . . . : 192.168.0.113(Preferred)
    Subnet Mask . . . . . . . . . . . : 255.255.255.0
    Lease Obtained. . . . . . . . . . : Thursday, June 11, 2020 9:28:44 AM
-   Lease Expires . . . . . . . . . . : Thursday, June 11, 2020 11:37:21 PM
+   Lease Expires . . . . . . . . . . : Friday, June 12, 2020 2:37:21 AM
    Default Gateway . . . . . . . . . : 192.168.0.1
    DHCP Server . . . . . . . . . . . : 192.168.0.1
    DHCPv6 IAID . . . . . . . . . . . : 108037570
@@ -52,17 +55,34 @@ Ethernet adapter vEthernet (Default Switch):
                                        fec0:0:0:ffff::2%1
                                        fec0:0:0:ffff::3%1
    NetBIOS over Tcpip. . . . . . . . : Enabled
-Ping request could not find host http://google.com. Please check the name and try again.
-Ping request could not find host http://googlery.com. Please check the name and try again.
-Unable to resolve target system name http://google.com.
-Unable to resolve target system name http://googlery.com.
-*** UnKnown can't find http://google.com: Non-existent domain
-Server:  UnKnown
-Address:  192.168.0.1
 
-*** UnKnown can't find http://googlery.com: Non-existent domain
-Server:  UnKnown
-Address:  192.168.0.1
+------------------------------------------------------------------------------------------------------------------------
+Coletanto testes com o comando ping:
+------------------------------------------------------------------------------------------------------------------------
 
-Resultado consulta no endereço http://google.com: 200 Response Code 200(OK).
-Falha ao conectar no endereço http://googlery.com: Response Code 404(Not found).
+Host - google.com:
+
+Pinging google.com [172.217.30.46] with 32 bytes of data:
+Reply from 172.217.30.46: bytes=32 time=15ms TTL=112
+Reply from 172.217.30.46: bytes=32 time=16ms TTL=112
+Reply from 172.217.30.46: bytes=32 time=15ms TTL=112
+Reply from 172.217.30.46: bytes=32 time=15ms TTL=112
+
+Ping statistics for 172.217.30.46:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 15ms, Maximum = 16ms, Average = 15ms
+Host - googlery.com:
+Ping request could not find host googlery.com. Please check the name and try again.
+
+------------------------------------------------------------------------------------------------------------------------
+Coletanto testes com o comando tracert:
+------------------------------------------------------------------------------------------------------------------------
+
+Host - google.com:
+
+Tracing route to google.com [172.217.30.46]
+over a maximum of 30 hops:
+
+  1    <1 ms    <1 ms    <1 ms  192.168.0.1
+  2     1 ms     1 ms     1 ms  168.227.132.26

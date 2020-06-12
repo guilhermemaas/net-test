@@ -213,7 +213,7 @@ def main():
         #[sg.Text('unifique.com.br')]
     ]
 
-    window = sg.Window('nettest - Network Tester', layout)
+    window = sg.Window('nettest - Network Tester', layout, no_titlebar=True, grab_anywhere=True)
     #window = sg.Window('Unifique - Testador de conexões de Rede', layout)
 
     command_queue = ThreadQueue() 
@@ -267,13 +267,7 @@ def main():
         # if message received from queue, then some work was completed
         if message is not None:
             print(message)
-            # LOCATION 3
-            # this is the place you would execute code at ENDING of long running task
-            # You can check the completed_work_id variable to see exactly which long-running function completed
-            # completed_work_id = int(message[:message.index(' :::')])
-            # window.Element('_OUTPUT2_').Update('Complete Work ID "{}"'.format(completed_work_id))
-            # window.Element(completed_work_id).Update(background_color='green')
-            #ctrl+ku, ctrl+kc
+
             window.refresh()
             
         if event in (None, 'Sair'):
