@@ -12,6 +12,11 @@ import requests
 
 def make_file(file_path) -> str:
     with open(file_path, 'w') as out:
+        out.write('Unifique - Network Tester')
+
+
+def make_file_nettest(file_path) -> str:
+    with open(file_path, 'w') as out:
         out.write('nettest - Network Tester')
 
 
@@ -28,6 +33,25 @@ def print_title(file_path, phrase) -> str:
 
 
 def print_logo(file_path) -> str:
+    logo="""
+    $$\   $$\           $$\  $$$$$$\  $$\                               
+    $$ |  $$ |          \__|$$  __$$\ \__|                              
+    $$ |  $$ |$$$$$$$\  $$\ $$ /  \__|$$\  $$$$$$\  $$\   $$\  $$$$$$\  
+    $$ |  $$ |$$  __$$\ $$ |$$$$\     $$ |$$  __$$\ $$ |  $$ |$$  __$$\ 
+    $$ |  $$ |$$ |  $$ |$$ |$$  _|    $$ |$$ /  $$ |$$ |  $$ |$$$$$$$$ |
+    $$ |  $$ |$$ |  $$ |$$ |$$ |      $$ |$$ |  $$ |$$ |  $$ |$$   ____|
+    \$$$$$$  |$$ |  $$ |$$ |$$ |      $$ |\$$$$$$$ |\$$$$$$  |\$$$$$$$\ 
+    \______/ \__|  \__|\__|\__|      \__| \____$$ | \______/  \_______|
+                                                $$ |                    
+                                                $$ |                    
+                                                \__|                                         
+    \n"""
+    print('-' * 120 + '\n' + 'Iniciando Testes:\n' + '-' * 120)
+    with open(file_path, 'a') as out:
+        out.write(logo)
+
+
+def print_logo_nettest(file_path) -> str:
     logo="""
           _   __     __     ______          __ 
        /  | /  /__  / /_   /_  __/__  _____/ /_
@@ -82,8 +106,8 @@ address_dict = {
     'googler': 'googlery.com',
 }
 
-#sg.theme('Reddit')
-sg.theme('DarkAmber')
+sg.theme('Reddit')
+#sg.theme('DarkAmber')
 
 
 class JobBase:
@@ -200,17 +224,17 @@ def main():
     gui_queue = queue.Queue()
 
     layout = [
-        [sg.Image(r'C:\Users\guilh\Documents\dev\net-test\images\nettest.png')],
-        #[sg.Image(r'C:\Users\guilherme.maas\Documents\dev\net-test\images\unifique.png')],
-        #[sg.Text('Unifique - Testador de conexões de Rede.')],
-        [sg.Text('NetTest - Testador de conexões de Rede.')],
+        #[sg.Image(r'C:\Users\guilh\Documents\dev\net-test\images\nettest.png')],
+        [sg.Image(r'C:\Users\guilherme.maas\Documents\dev\net-test\images\unifique.png')],
+        [sg.Text('Unifique - Testador de conexões de Rede.')],
+        #[sg.Text('NetTest - Testador de conexões de Rede.')],
         [sg.Text('Diretório de saída:', size=(15, 1)), sg.InputText(), sg.FolderBrowse()],
         [sg.Text('Endereço alternativo:', size=(15, 1)) ,sg.InputText()],
         [sg.Text('Exemplos de endereço: terra.com.br, uol.com.br, globo.com')],
         [sg.Output(size=(110,30), background_color='black', text_color='white')],
         [sg.Button('Testar'), sg.Button('Sair')],
-        [sg.Text('github.com/guilhermemaas')],
-        #[sg.Text('unifique.com.br')]
+        #[sg.Text('github.com/guilhermemaas')],
+        [sg.Text('unifique.com.br')]
     ]
 
     window = sg.Window('nettest - Network Tester', layout, no_titlebar=True, grab_anywhere=True)
@@ -239,24 +263,24 @@ def main():
 
             command_queue.put(PrintJob(gui_queue, '\n' + '-' * 120 + '\nColetanto testes com o comando ping:\n' + '-' * 120 + '\n', file_path))
             for key, value in address_dict.items():
-                command_queue.put(PrintJob(gui_queue, f'Host - {value}:', file_path))
+                command_queue.put(PrintJob(gui_queue, f'\nHost - {value}:', file_path))
                 command_queue.put(RunCommandJob(f'ping {value}', gui_queue, None, file_path))
 
             command_queue.put(PrintJob(gui_queue, '\n' + '-' * 120 + '\nColetanto testes com o comando tracert:\n' + '-' * 120 + '\n', file_path))
             for key, value in address_dict.items():
-                command_queue.put(PrintJob(gui_queue, f'Host - {value}:', file_path))
+                command_queue.put(PrintJob(gui_queue, f'\nHost - {value}:', file_path))
                 command_queue.put(RunCommandJob(f'tracert -d -w 400 {value}', gui_queue, None, file_path))
 
             command_queue.put(PrintJob(gui_queue, '\n' + '-' * 120 + '\nColetanto testes com o comando nslookup:\n' + '-' * 120 + '\n', file_path))
             for key, value in address_dict.items():
-                command_queue.put(PrintJob(gui_queue, f'Host - {value}:', file_path))
+                command_queue.put(PrintJob(gui_queue, f'\nHost - {value}:', file_path))
                 command_queue.put(RunCommandJob(f'nslookup {value}', gui_queue, None, file_path))
 
             command_queue.run_in_sequence()
 
             command_queue.put(PrintJob(gui_queue, '\n' + '-' * 120 + '\nColetando Response Code HTTP.\n' + '-' * 120 + '\n', file_path))
             for key, value in address_dict.items():
-                command_queue.put(PrintJob(gui_queue, f'Host - {value}:', file_path))
+                command_queue.put(PrintJob(gui_queue, f'\nHost - {value}:', file_path))
                 command_queue.put(GetHttpResponseJob(gui_queue, value, file_path))
             
         try:
