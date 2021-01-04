@@ -4,3 +4,4 @@ dist
 __pycache__
 nettest.spec
 nettest_queue3.spec
+.vscode
