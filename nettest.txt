@@ -26,11 +26,11 @@ Ethernet adapter Ethernet:
    Physical Address. . . . . . . . . : 70-85-C2-07-B6-A9
    DHCP Enabled. . . . . . . . . . . : Yes
    Autoconfiguration Enabled . . . . : Yes
-   Link-local IPv6 Address . . . . . : fe80::896f:fedd:7913:1171%11(Preferred)
+   Link-local IPv6 Address . . . . . : fe80::896f:fedd:7913:1171%12(Preferred)
    IPv4 Address. . . . . . . . . . . : 192.168.0.113(Preferred)
    Subnet Mask . . . . . . . . . . . : 255.255.255.0
-   Lease Obtained. . . . . . . . . . : Thursday, June 11, 2020 9:28:44 AM
-   Lease Expires . . . . . . . . . . : Friday, June 12, 2020 2:37:21 AM
+   Lease Obtained. . . . . . . . . . : Friday, June 12, 2020 7:25:46 PM
+   Lease Expires . . . . . . . . . . : Saturday, June 13, 2020 12:49:20 AM
    Default Gateway . . . . . . . . . : 192.168.0.1
    DHCP Server . . . . . . . . . . . : 192.168.0.1
    DHCPv6 IAID . . . . . . . . . . . : 108037570
@@ -42,11 +42,11 @@ Ethernet adapter vEthernet (Default Switch):
 
    Connection-specific DNS Suffix  . :
    Description . . . . . . . . . . . : Hyper-V Virtual Ethernet Adapter
-   Physical Address. . . . . . . . . : 00-15-5D-54-A5-BB
+   Physical Address. . . . . . . . . : 00-15-5D-D5-35-E2
    DHCP Enabled. . . . . . . . . . . : No
    Autoconfiguration Enabled . . . . : Yes
-   Link-local IPv6 Address . . . . . : fe80::4bf:bb4:8d08:7f1a%17(Preferred)
-   IPv4 Address. . . . . . . . . . . : 172.18.97.33(Preferred)
+   Link-local IPv6 Address . . . . . : fe80::919f:5bbf:34b9:cd73%17(Preferred)
+   IPv4 Address. . . . . . . . . . . : 172.17.28.1(Preferred)
    Subnet Mask . . . . . . . . . . . : 255.255.255.240
    Default Gateway . . . . . . . . . :
    DHCPv6 IAID . . . . . . . . . . . : 285218141
@@ -64,14 +64,14 @@ Host - google.com:
 
 Pinging google.com [172.217.30.46] with 32 bytes of data:
 Reply from 172.217.30.46: bytes=32 time=15ms TTL=112
-Reply from 172.217.30.46: bytes=32 time=16ms TTL=112
+Reply from 172.217.30.46: bytes=32 time=15ms TTL=112
 Reply from 172.217.30.46: bytes=32 time=15ms TTL=112
 Reply from 172.217.30.46: bytes=32 time=15ms TTL=112
 
 Ping statistics for 172.217.30.46:
     Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
 Approximate round trip times in milli-seconds:
-    Minimum = 15ms, Maximum = 16ms, Average = 15ms
+    Minimum = 15ms, Maximum = 15ms, Average = 15ms
 Host - googlery.com:
 Ping request could not find host googlery.com. Please check the name and try again.
 
@@ -85,4 +85,49 @@ Tracing route to google.com [172.217.30.46]
 over a maximum of 30 hops:
 
   1    <1 ms    <1 ms    <1 ms  192.168.0.1
-  2     1 ms     1 ms     1 ms  168.227.132.26
+  2    <1 ms     1 ms     1 ms  168.227.132.26
+  3     1 ms     1 ms     1 ms  168.227.132.25
+  4     4 ms     1 ms     1 ms  168.227.132.6
+  5     1 ms     1 ms     1 ms  172.30.13.97
+  6     2 ms     2 ms     2 ms  187.85.163.241
+  7    12 ms    12 ms    21 ms  189.125.26.109
+  8    17 ms    17 ms    17 ms  64.209.11.186
+  9    15 ms     *       14 ms  72.14.212.213
+ 10    17 ms    18 ms    18 ms  216.239.46.205
+ 11    15 ms    15 ms    15 ms  216.239.46.39
+ 12    15 ms    14 ms    15 ms  172.217.30.46
+
+Trace complete.
+Host - googlery.com:
+Unable to resolve target system name googlery.com.
+
+------------------------------------------------------------------------------------------------------------------------
+Coletanto testes com o comando nslookup:
+------------------------------------------------------------------------------------------------------------------------
+
+Host - google.com:
+Non-authoritative answer:
+Server:  UnKnown
+Address:  192.168.0.1
+
+Name:    google.com
+Addresses:  2800:3f0:4001:809::200e
+	  172.217.30.46
+
+Host - googlery.com:
+*** UnKnown can't find googlery.com: Non-existent domain
+Server:  UnKnown
+Address:  192.168.0.1
+
+
+------------------------------------------------------------------------------------------------------------------------
+Coletando Response Code HTTP.
+------------------------------------------------------------------------------------------------------------------------
+
+Host - google.com:
+------------------------------------------------------------------------------------------------------------------------
+Teste - Coletando Response Code HTTP.
+------------------------------------------------------------------------------------------------------------------------
+Resultado consulta no endereço google.com: 200 Response Code 200(OK).
+Host - googlery.com:
+Falha ao conectar no endereço googlery.com: Response Code 404(Not found).
